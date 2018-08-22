@@ -1,0 +1,87 @@
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: alertmanager-sns-forwarder
+  namespace: default
+  labels:
+    component: alertmanager-sns-forwarder
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        component: alertmanager-sns-forwarder
+      annotations:
+        iam.amazonaws.com/role: sns-forwarder-role
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: alertmanager-sns-forwarder
+        image: alertmanager-sns-forwarder:0.1
+        imagePullPolicy: Always
+        # You can also specify arguments
+        # args: ["--addr=:9087", "--debug", "--arn-prefix=<some_prefix>"]
+        env:
+          - name: AWS_REGION
+            value: "eu-central-1"
+          - name: AWS_DEFAULT_REGION
+            value: "eu-central-1"
+        resources:
+          limits:
+            memory: 1Gi
+            cpu: 0.5
+          requests:
+            cpu: 0.2
+            memory: 0.5Gi
+        ports:
+          - containerPort: 9087
+            name: webhook-port
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: webhook-port
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: webhook-port
+          initialDelaySeconds: 10
+          timeoutSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager-sns-forwarder-svc
+  namespace: default
+  labels:
+    component:  alertmanager-sns-forwarder
+spec:
+  ports:
+    - port: 9087
+      name: webhook-port
+  selector:
+    component: alertmanager-sns-forwarder
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: alertmanager-sns-forwarder-metrics-sm
+  namespace: default
+  labels:
+    component: alertmanager-sns-forwarder
+spec:
+  selector:
+    component: alertmanager-sns-forwarder
+  endpoints:
+  - port: webhook-port
+    scrapeTimeout: "30s"
+    interval: "40s"
