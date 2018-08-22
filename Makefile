@@ -8,8 +8,9 @@ bin: bin/linux/${PROJECT_NAME}
 
 bin/%: LDFLAGS=-X github.com/DataReply/${PROJECT_NAME}/${PROJECT_NAME}.Version=${APP_VERSION}
 bin/%: $(GOFILES)
-	mkdir -p $(dir $@)
-	CGO_ENABLED=0 GOOS=$(word 1, $(subst /, ,$*)) GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o "$@" github.com/DataReply/${PROJECT_NAME}/
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o "bin/darwin/${PROJECT_NAME}" github.com/DataReply/${PROJECT_NAME}/
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o "bin/linux/${PROJECT_NAME}" github.com/DataReply/${PROJECT_NAME}/
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o "bin/windows/${PROJECT_NAME}" github.com/DataReply/${PROJECT_NAME}/
 
 test:
 	go test github.com/DataReply/${PROJECT_NAME}/...

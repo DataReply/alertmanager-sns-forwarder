@@ -9,9 +9,7 @@ RUN set -ex && apk --update --no-cache add \
 
 WORKDIR /go/src/github.com/DataReply/alertmanager-sns-forwarder
 COPY . .
-RUN make dep
-RUN make test
-RUN make bin
+RUN make all
 
 # final image
 FROM golang:alpine
