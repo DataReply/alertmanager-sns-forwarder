@@ -1,4 +1,9 @@
 # alertmanager-sns-forwarder
+###### Dispatching Panic Across the Organization
+
+[![Build Status](https://travis-ci.org/DataReply/alertmanager-sns-forwarder.svg?branch=master)](https://travis-ci.org/DataReply/alertmanager-sns-forwarder)
+[![go-doc](https://godoc.org/github.com/DataReply/alertmanager-sns-forwarder?status.svg)](https://godoc.org/github.com/DataReply/alertmanager-sns-forwarder)
+[![Go Report Card](https://goreportcard.com/badge/github.com/DataReply/alertmanager-sns-forwarder)](https://goreportcard.com/report/github.com/DataReply/alertmanager-sns-forwarder)
 
 Prometheus [Alertmanager](https://github.com/prometheus/alertmanager) Webhook Receiver for forwarding alerts to AWS SNS. Inspired by https://github.com/inCaller/prometheus_bot.
 
@@ -13,7 +18,7 @@ docker build -t alertmanager-sns-forwarder:0.1 .
 Or as local binary:
 
 ```bash
-export GOPATH="your go path"xs
+export GOPATH="your go path"
 make all
 ```
 

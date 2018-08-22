@@ -1,10 +1,9 @@
 sudo: required
 
 env:
-  matrix:
+  global:
   - secure: HBFYeB+BJUirImKI0zeqjlb87Ji8cUy0481sKA1Q4WWB0Eq9aNF+9s/YWHiC5MzVS3fbiZdIyHGhH4VU570osiQjwLig8230fFlVy9hiH+AZBgO8E8q/wdWlmZ9abfuxwN6LJGVNKgplRcenC++O2V/YlsIYZ2mqwNtlLzrb4ZwDp1+BLTIFUNh6mrTr6++5ih3vVPYFolHFsbaHO7pWZ72t0r7JXuyBGN1B64HCW9JWgyD2Bg7jruTETUrJ0gUmWDh054xetnP7kRx0KUtOwFcIcS9RgDvNAdgOeeokiSp4q7LaXn9h0YRL1X99Lkhn5LnfYcWuLjk0ZZhOcTtt7IipaFubH1IFEki462t1jzOabYo1EMnZcnHe1qP5YBqTZdlGIrW5sAbA798Wj4q5F7OPCb7JfGcXad3JIHWnTZJw/vJcuBWiwZSIlfhbw4rM7KNrqXdbtgaGEflDrpv1wHghjsTjzY9vb0Ssxl0TPPiobfk+wxL5dfJVtOP+h9dOJ2KSS9Cwbw+RXJL3Dx67CHF0ZURkpOIh3Y9bW0Z+PE41X14BQRiUbvR35L6e2MLB6bCoR4kCpWiE08zadfMEHH7r413d2EEKawJVWBvCHdYoLz9bI8smXITaE4JwIpegd5dByJMtVkM6LS1xnBSjYTjHrwcwOpDgKAjd+7+yDzo=
   - secure: rRIR3pIrVPcAUYkOZB4d/h7dMM1UL+75xvkuG+yKsDBArnGcJgFnm/NYwUkBCmzaI85YRTz0y36TOskyx0AXYzL5LKByrOGcvxkURIvTHIynzV9Z9WNmzBRvohVNNr+vdaZH0/mASlDGIkrVXAV8vi212pR8fKLbVxRur20jxAJtHHhL/1qpTnQL27J7x0g0eAUAfb8AyGtSWjODq+gHHqL/tBXd3tsLditmrwC4h9PUtapC2XJagLMTvPPnrpCe2zr/5smeqUn6kBqiz3UQ6tXAo7DR4Wg5DaYvuOE+IsrHxeELSWOz7Jq7o+w4eN59cqV1nptvxSzu5KLTqLb1E/18p6gZ6FjVZeHeSOqG8AUhfow0nY5C5yreq4eH2wIRRDCGDZBJtTDBqStA18u5QYGcGgN0tVTTozNrB2SER2NK/MHZ4eJJo9s4oUftIaegFdAY/LPvkBccelhLhkdcjj1lUJSVDNHfOCwFP4Di2FPt2fvKYInakqFrUpTSkp7ILzuVN5dg81hErmdNKSB3FWREeLcx5GOEO6+5NTHFFgrQgJO20mRVou9kNu5VfAVw/cs+kmibsJHTD4JtctaN8dn/81zB1abrP3mMC003Hcy9eFkClwkXtVQEq/EtvFrMEAm6Bazjudmpvwx3jJNwEcR3IliE6b17X/EXibh0iAE=
-  - secure: JDJHck5cds2ZM6I9jZHGwiNozW42zECxt/GIAAOzqw3Se8ApW0epelXd+Ti5i4K6W9gYdoqGBNDWKpJHbk+TWUrEDYX0ABj69owA58wsnMZxfaTzZ1csjNth/HJZY/fa9bYRs0a3gncXkWQg2hAnEoHZ1No5uGeN08+/7BUpBjNUmb9oUO4UNbjH+PT3rbi90WNjcS4kfIj1gYtCXSqBtX/+oQ8mWWO4W3xLd/Oetc13xplOV7RIkAMcVlKnv5dIR2PZXC8mwj91G80OAQn8Y3K2fxCdJyqYL6b0c6sxSoDori9Wuyszw2COhj3Sdc/lreQgF+tFECJClstiVhXxhmxJF+Cwg/ftJIAF4r+ae2ICYzpB38aD6MchUpfuv+CR92rizLA+lWn5GRkyHljcgP52DwZgoTcRX9vABAt0vo5AGyM8MGId1xD938Ato7i+WWAEBXlPh+x+o1ReYJwbPAi/NTevCRPAV0B0gkQdQU55LFvoaMEzzlVhfaiM8mgX4IHy1KGUWm/YmHNGmgvXq7Sc/6j7rN5eJdf2/tRAiz6ZgekjesuNAyKSIOG8/9DC2DEBDIJGoC3uNJgeApj3Jum5KEn57imc472jK7omZpc4LWz+bHu8Tsvw/v41dkpwKvlveQgMuJHL33YxvChY77rz+LNUjcu6CYC28NqmFlY=
 
 services:
 - docker
@@ -32,11 +31,12 @@ deploy:
     - "releases/alertmanager-sns-forwarder-darwin_amd64.tar.gz"
     - "releases/alertmanager-sns-forwarder-linux_amd64.tar.gz"
     - "releases/alertmanager-sns-forwarder-windows_amd64.tar.gz"
+  skip_cleanup: true
   on:
     repo: DataReply/alertmanager-sns-forwarder
     branch: master
 
 after_success:
   - test $TRAVIS_BRANCH = "master" &&
-    docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS &&
+    docker login -u $DOCKER_USER -p $DOCKER_PASS &&
     docker push datareply/alertmanager-sns-forwarder
