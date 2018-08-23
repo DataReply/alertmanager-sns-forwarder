@@ -38,6 +38,6 @@ deploy:
     branch: master
 
 after_success:
-  - test $TRAVIS_BRANCH = "master" &&
+  - test $TRAVIS_BRANCH = "master" && test $TRAVIS_TAG && 
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && 
     docker push datareply/alertmanager-sns-forwarder
