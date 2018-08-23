@@ -33,6 +33,7 @@ deploy:
     - "releases/alertmanager-sns-forwarder-windows_amd64.tar.gz"
   skip_cleanup: true
   on:
+    tags: true
     repo: DataReply/alertmanager-sns-forwarder
     branch: master
 
