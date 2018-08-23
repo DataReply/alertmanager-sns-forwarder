@@ -15,7 +15,7 @@ go:
 
 script:
 - make all
-- docker build -t datareply/alertmanager-sns-forwarder:0.1 .
+- docker build -t datareply/alertmanager-sns-forwarder:latest .
 
 before_deploy:
 - mkdir releases
@@ -38,6 +38,8 @@ deploy:
     branch: master
 
 after_success:
-  - test $TRAVIS_BRANCH = "master" && test $TRAVIS_TAG && 
+  - test $TRAVIS_TAG && 
+    docker tag datareply/alertmanager-sns-forwarder:latest datareply/alertmanager-sns-forwarder:$TRAVIS_TAG
+  - test $TRAVIS_BRANCH = "master" && 
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && 
     docker push datareply/alertmanager-sns-forwarder
