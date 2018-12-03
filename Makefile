@@ -13,7 +13,7 @@ bin/%: $(GOFILES)
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o "bin/windows/${PROJECT_NAME}" github.com/DataReply/${PROJECT_NAME}/
 
 test:
-	go test github.com/DataReply/${PROJECT_NAME}/...
+	CGO_ENABLED=0 go test github.com/DataReply/${PROJECT_NAME}/...
 
 dep:
 	go get -u github.com/golang/dep/cmd/dep
