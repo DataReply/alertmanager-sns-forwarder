@@ -77,7 +77,7 @@ func main() {
 		return
 	}
 
-	if *arnPrefix == "" || arnutil.ValidateARN(*arnPrefix) {
+	if *arnPrefix == "" || !arnutil.ValidateARN(*arnPrefix) {
 		log.Warn("ARN prefix not supplied or wrong, will try to detect")
 		detectedArnPrefix, err := arnutil.DetectARNPrefix(session)
 		if err != nil {
