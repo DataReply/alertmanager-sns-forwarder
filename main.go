@@ -148,12 +148,12 @@ func main() {
 	router := gin.New()
 	router.Use(gin.LoggerWithWriter(gin.DefaultWriter, "/health", "/metrics"))
 	router.Use(gin.Recovery())
-	router.Run(*listen_addr)
 
 	setupRouter(router)
 
 	log.Info("listening on", *listen_addr)
 
+        router.Run(*listen_addr)
 }
 
 func registerCustomPrometheusMetrics() {
