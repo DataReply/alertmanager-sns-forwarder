@@ -99,7 +99,7 @@ var (
 func main() {
 	kingpin.Parse()
 
-	if templatePath != nil {
+	if templatePath != nil && *templatePath != "" {
 		tmpH = loadTemplate(templatePath)
 	} else {
 		tmpH = nil
