@@ -44,6 +44,22 @@ Flag           | Env Variable           | Default       | Description
 `--debug`      | `SNS_FORWARDER_DEBUG`       | `false`       | Debug mode
 `--arn-prefix` | `SNS_FORWARDER_ARN_PREFIX`  | not specified | Prefix to use for SNS topic ARNs. If not specified, will try to be detected automatically.
 
+## Customising messages with template
+
+The app also supports [go templating language](https://golang.org/pkg/text/template/).
+The feature was ported from [prometheus_bot](https://github.com/inCaller/prometheus_bot) and you can read more about this functionality in their [docs](https://github.com/inCaller/prometheus_bot#customising-messages-with-template).
+
+The settings for using templates are available as the following flags or env vars.
+
+Flag                         | Env Variable                             | Default       | Description
+-----------------------------|------------------------------------------|---------------|------------
+`--template-path`            | `SNS_FORWARDER_TEMPLATE_PATH`            |               | Template path
+`--template-time-zone`       | `SNS_FORWARDER_TEMPLATE_TIME_ZONE`       |               | Template time zone
+`--template-time-out-format` | `SNS_FORWARDER_TEMPLATE_TIME_OUT_FORMAT` |               | Template time out format
+`--template-split-token`     | `SNS_FORWARDER_TEMPLATE_SPLIT_TOKEN`     |               | Token used for split measure label
+
+There are also an [example template file](testdata/default.tmpl) along with an [example payload json](testdata/simple.json) provided.
+
 ### Endpoints
 
 The app exposes the following HTTP endpoints:

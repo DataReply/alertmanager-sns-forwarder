@@ -153,7 +153,7 @@ func main() {
 
 	log.Info("listening on", *listen_addr)
 
-        router.Run(*listen_addr)
+	router.Run(*listen_addr)
 }
 
 func registerCustomPrometheusMetrics() {
