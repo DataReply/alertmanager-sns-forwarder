@@ -2,11 +2,18 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"path"
 	"strings"
 
+	"html/template"
+
 	"github.com/DataReply/alertmanager-sns-forwarder/arnutil"
+	"github.com/DataReply/alertmanager-sns-forwarder/template_util"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/linki/instrumented_http"
@@ -19,13 +26,38 @@ import (
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
+type Alerts struct {
+	Alerts            []Alert                `json:"alerts"`
+	CommonAnnotations map[string]interface{} `json:"commonAnnotations"`
+	CommonLabels      map[string]interface{} `json:"commonLabels"`
+	ExternalURL       string                 `json:"externalURL"`
+	GroupKey          int                    `json:"groupKey"`
+	GroupLabels       map[string]interface{} `json:"groupLabels"`
+	Receiver          string                 `json:"receiver"`
+	Status            string                 `json:"status"`
+	Version           int                    `json:"version"`
+}
+
+type Alert struct {
+	Annotations  map[string]interface{} `json:"annotations"`
+	EndsAt       string                 `json:"endsAt"`
+	GeneratorURL string                 `json:"generatorURL"`
+	Labels       map[string]interface{} `json:"labels"`
+	StartsAt     string                 `json:"startsAt"`
+}
+
 var (
 	log = logrus.New()
 
-	listen_addr = kingpin.Flag("addr", "Address on which to listen").Default(":9087").Envar("SNS_FORWARDER_ADDRESS").String()
-	debug       = kingpin.Flag("debug", "Debug mode").Default("false").Envar("SNS_FORWARDER_DEBUG").Bool()
-	arnPrefix   = kingpin.Flag("arn-prefix", "Prefix to use for ARNs").Envar("SNS_FORWARDER_ARN_PREFIX").String()
-	svc         *sns.SNS
+	listen_addr           = kingpin.Flag("addr", "Address on which to listen").Default(":9087").Envar("SNS_FORWARDER_ADDRESS").String()
+	debug                 = kingpin.Flag("debug", "Debug mode").Default("false").Envar("SNS_FORWARDER_DEBUG").Bool()
+	arnPrefix             = kingpin.Flag("arn-prefix", "Prefix to use for ARNs").Envar("SNS_FORWARDER_ARN_PREFIX").String()
+	templatePath          = kingpin.Flag("template-path", "Template path").Envar("SNS_FORWARDER_TEMPLATE_PATH").String()
+	templateTimeZone      = kingpin.Flag("template-time-zone", "Template time zone").Envar("SNS_FORWARDER_TEMPLATE_TIME_ZONE").String()
+	templateTimeOutFormat = kingpin.Flag("template-time-out-format", "Template time out format").Envar("SNS_FORWARDER_TEMPLATE_TIME_OUT_FORMAT").String()
+	templateSplitToken    = kingpin.Flag("template-split-token", "Template split token").Envar("SNS_FORWARDER_TEMPLATE_SPLIT_TOKEN").String()
+	svc                   *sns.SNS
+	tmpH                  *template.Template
 
 	namespace = "forwarder"
 	subsystem = "sns"
@@ -50,10 +82,28 @@ var (
 		},
 		labels,
 	)
+
+	// Template addictional functions map
+	funcMap = template.FuncMap{
+		"str_FormatDate":         template_util.Str_FormatDate,
+		"str_UpperCase":          strings.ToUpper,
+		"str_LowerCase":          strings.ToLower,
+		"str_Title":              strings.Title,
+		"str_FormatFloat":        template_util.Str_FormatFloat,
+		"str_Format_Byte":        template_util.Str_Format_Byte,
+		"str_Format_MeasureUnit": template_util.Str_Format_MeasureUnit,
+		"HasKey":                 template_util.HasKey,
+	}
 )
 
 func main() {
 	kingpin.Parse()
+
+	if templatePath != nil && *templatePath != "" {
+		tmpH = loadTemplate(templatePath)
+	} else {
+		tmpH = nil
+	}
 
 	registerCustomPrometheusMetrics()
 
@@ -77,7 +127,7 @@ func main() {
 		return
 	}
 
-	if *arnPrefix == "" || arnutil.ValidateARN(*arnPrefix) {
+	if *arnPrefix == "" || !arnutil.ValidateARN(*arnPrefix) {
 		log.Warn("ARN prefix not supplied or wrong, will try to detect")
 		detectedArnPrefix, err := arnutil.DetectARNPrefix(session)
 		if err != nil {
@@ -98,12 +148,12 @@ func main() {
 	router := gin.New()
 	router.Use(gin.LoggerWithWriter(gin.DefaultWriter, "/health", "/metrics"))
 	router.Use(gin.Recovery())
-	router.Run(*listen_addr)
 
 	setupRouter(router)
 
 	log.Info("listening on", *listen_addr)
 
+	router.Run(*listen_addr)
 }
 
 func registerCustomPrometheusMetrics() {
@@ -132,6 +182,42 @@ func healthGETHandler(c *gin.Context) {
 	})
 }
 
+func loadTemplate(tmplPath *string) *template.Template {
+	// let's read template
+	tmpH, err := template.New(path.Base(*tmplPath)).Funcs(funcMap).ParseFiles(*tmplPath)
+
+	if err != nil {
+		log.Fatalf("Problem reading parsing template file: %v", err)
+	} else {
+		log.Printf("Load template file:%s", *tmplPath)
+	}
+
+	return tmpH
+}
+
+func AlertFormatTemplate(alerts Alerts) string {
+	var bytesBuff bytes.Buffer
+	var err error
+
+	writer := io.Writer(&bytesBuff)
+
+	if *debug {
+		log.Printf("Reloading Template\n")
+		// reload template bacause we in debug mode
+		tmpH = loadTemplate(templatePath)
+	}
+
+	tmpH.Funcs(funcMap)
+	err = tmpH.Execute(writer, alerts)
+
+	if err != nil {
+		log.Fatalf("Problem with template execution: %v", err)
+		panic(err)
+	}
+
+	return bytesBuff.String()
+}
+
 func alertPOSTHandler(c *gin.Context) {
 
 	requestData, err := ioutil.ReadAll(c.Request.Body)
@@ -141,6 +227,14 @@ func alertPOSTHandler(c *gin.Context) {
 		return
 	}
 	requestString := string(requestData)
+
+	if templatePath != nil && tmpH != nil {
+		var alerts Alerts
+
+		json.Unmarshal(requestData, &alerts)
+
+		requestString = AlertFormatTemplate(alerts)
+	}
 
 	topic := c.Params.ByName("topic")
 	topicArn := *arnPrefix + topic

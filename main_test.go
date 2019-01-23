@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -18,8 +20,11 @@ import (
 var (
 	regionString = "eu-central-1"
 
+	data, err = ioutil.ReadFile("testdata/simple.json")
+
 	mockUnavailableSession    = makeMockSession(http.StatusBadRequest, nil)()
 	mockNoReturnedDataSession = makeMockSession(http.StatusOK, nil)()
+	mockJsonDataSession       = makeMockSession(http.StatusOK, data)()
 
 	r = gin.Default()
 )
@@ -109,6 +114,13 @@ func TestSNSAlertEndpoint(t *testing.T) {
 	// Test that request using the available mock Session results in OK status
 	svc = sns.New(mockNoReturnedDataSession)
 	req, _ = http.NewRequest("POST", "/alert/test-topic", strings.NewReader("test-payload"))
+	testHTTPResponse(t, r, req, http.StatusOK)
+
+	templatePath_ := "testdata/default.tmpl"
+	templatePath = &templatePath_
+	tmpH = loadTemplate(templatePath)
+	svc = sns.New(mockJsonDataSession)
+	req, _ = http.NewRequest("POST", "/alert/test-topic", bytes.NewReader(data))
 	testHTTPResponse(t, r, req, http.StatusOK)
 }
 
