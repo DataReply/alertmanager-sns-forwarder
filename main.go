@@ -118,6 +118,13 @@ func main() {
 		}),
 	)
 
+	// if region is not configured according to AWS SDK docs, but ARN prefix is provided
+	// the region will be parsed from the ARN prefix
+	if config.Region == nil && *arnPrefix != "" {
+		arnRegion := arnutil.GetRegionFromARN(*arnPrefix)
+		config.Region = &arnRegion
+	}
+
 	session, err := session.NewSessionWithOptions(session.Options{
 		Config: *config,
 	})
