@@ -34,6 +34,21 @@ make all
 
 3. Configure Alertmanager.
 
+### AWS SDK Configuration
+
+The app used the AWS SDK for Go, so it's necessary to configure it according to the [docs](https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html). Specifically this means setting a region and providing credentials.
+
+In the current version of the project the region should be set by:
+
+* Setting the AWS_REGION environment variable to the default region.
+* Setting the AWS_SDK_LOAD_CONFIG environment variable to true to get the region value from the config file in the .aws/ folder in your home directory.
+
+Accordingly, you can provide credentials by:
+
+* Using IAM roles for Amazon EC2 (recommended if your application is running on an Amazon EC2 instance).
+* Using a shared credentials file.
+* Using environment variables.
+
 ### Arguments
 
 The app accepts some optional arguments, available as flags or env vars.
