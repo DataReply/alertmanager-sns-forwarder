@@ -117,3 +117,24 @@ func TestBaseSNSArn(t *testing.T) {
 		t.Fatal("Account prefix was created unsuccessfully")
 	}
 }
+
+func TestGetRegionFromARN(t *testing.T) {
+
+	region := GetRegionFromARN("arn:aws:iam::123456789012:role/rolename")
+
+	if region != "" {
+		t.Fatal("Region parsed from ARN without region was not empty")
+	}
+
+	region = GetRegionFromARN("arn:aws:iam:eu-central-1:123456789012:role/rolename")
+
+	if region != "eu-central-1" {
+		t.Fatal("Region parsed from ARN with region was not correct")
+	}
+
+	region = GetRegionFromARN(":aws:iam::123456789012:role/rolename")
+
+	if region != "" {
+		t.Fatal("Region parsed from wrong ARN was not empty")
+	}
+}

@@ -36,12 +36,14 @@ make all
 
 ### AWS SDK Configuration
 
-The app used the AWS SDK for Go, so it's necessary to configure it according to the [docs](https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html). Specifically this means setting a region and providing credentials.
+The app uses the AWS SDK for Go, so it's necessary to configure it according to the [docs](https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/configuring-sdk.html). Specifically this means setting a region and providing credentials.
 
-In the current version of the project the region should be set by:
+The region should be set by:
 
 * Setting the AWS_REGION environment variable to the default region.
 * Setting the AWS_SDK_LOAD_CONFIG environment variable to true to get the region value from the config file in the .aws/ folder in your home directory.
+
+Alternatively, if you provide the ARN prefix argument (described in the next section), the region will be parsed from the prefix and it's not necessary to provide it.
 
 Accordingly, you can provide credentials by:
 

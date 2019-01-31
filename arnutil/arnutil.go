@@ -28,6 +28,16 @@ func ValidateARN(arnString string) bool {
 	return true
 }
 
+// Helper function to get region from ARNs
+func GetRegionFromARN(arnString string) string {
+	arn, err := arn.Parse(arnString)
+	if err != nil {
+		log.Warnf("The ARN supplied as argument does not parse successfully: %s", arnString)
+		return ""
+	}
+	return arn.Region
+}
+
 // InstanceProfileArn uses the EC2 metadata API to find the role for
 // the instance.
 func InstanceProfileArn(svc *ec2metadata.EC2Metadata) (arn.ARN, error) {
