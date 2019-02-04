@@ -52,6 +52,7 @@ var (
 	listen_addr           = kingpin.Flag("addr", "Address on which to listen").Default(":9087").Envar("SNS_FORWARDER_ADDRESS").String()
 	debug                 = kingpin.Flag("debug", "Debug mode").Default("false").Envar("SNS_FORWARDER_DEBUG").Bool()
 	arnPrefix             = kingpin.Flag("arn-prefix", "Prefix to use for ARNs").Envar("SNS_FORWARDER_ARN_PREFIX").String()
+	snsSubject            = kingpin.Flag("sns-subject", "SNS subject").Default("PrometheusAlert").Envar("SNS_SUBJECT").String()
 	templatePath          = kingpin.Flag("template-path", "Template path").Envar("SNS_FORWARDER_TEMPLATE_PATH").String()
 	templateTimeZone      = kingpin.Flag("template-time-zone", "Template time zone").Envar("SNS_FORWARDER_TEMPLATE_TIME_ZONE").String()
 	templateTimeOutFormat = kingpin.Flag("template-time-out-format", "Template time out format").Envar("SNS_FORWARDER_TEMPLATE_TIME_OUT_FORMAT").String()
@@ -258,6 +259,7 @@ func alertPOSTHandler(c *gin.Context) {
 	log.Debugln("+-----------------------------------------------------------+")
 
 	params := &sns.PublishInput{
+		Subject:  aws.String(*snsSubject),
 		Message:  aws.String(requestString),
 		TopicArn: aws.String(topicArn),
 	}
