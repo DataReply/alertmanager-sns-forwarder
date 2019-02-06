@@ -57,9 +57,10 @@ The app accepts some optional arguments, available as flags or env vars.
 
 Flag           | Env Variable           | Default       | Description
 ---------------|------------------------|---------------|------------
-`--addr`       | `SNS_FORWARDER_ADDRESS`     | `:9087`       | Address on which to listen.
-`--debug`      | `SNS_FORWARDER_DEBUG`       | `false`       | Debug mode
-`--arn-prefix` | `SNS_FORWARDER_ARN_PREFIX`  | not specified | Prefix to use for SNS topic ARNs. If not specified, will try to be detected automatically.
+`--addr`        | `SNS_FORWARDER_ADDRESS`     | `:9087`            | Address on which to listen.
+`--debug`       | `SNS_FORWARDER_DEBUG`       | `false`            | Debug mode
+`--arn-prefix`  | `SNS_FORWARDER_ARN_PREFIX`  | not specified      | Prefix to use for SNS topic ARNs. If not specified, will try to be detected automatically.
+`--sns-subject` | `SNS_SUBJECT`               | not specified      | Optional parameter to be used as the "Subject" line when the message is delivered to email endpoints.
 
 ## Customising messages with template
 
