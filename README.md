@@ -106,6 +106,8 @@ Replace `<sns_topic_name>` by the name of your SNS topic. You can specify the fu
 - specify the ARN prefix via a parameter `--arn-prefix`
 - specify the ARN prefix via an env var `SNS_FORWARDER_ARN_PREFIX`
 
+N.B make sure to add a trailing colon to the arn prefix e.g `--arn-prefix arn:aws:sns:us-east-1:123456789123:`
+
 This allows the app to be used for forwarding alerts to multiple SNS topics. The rules for which alerts to send to which topics should be configured in Alertmanager.
 
 ### Deploying
