@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sns"
@@ -129,4 +130,51 @@ func TestPrometheusEndpoint(t *testing.T) {
 	// Test that making requests to health endpoint results in OK status
 	req, _ := http.NewRequest("GET", "/metrics", nil)
 	testHTTPResponse(t, r, req, http.StatusOK)
+}
+
+// Test_snsReturnCode helps ensure the correct HTTP return code is sent
+// based on the type of SNS error returned.
+func Test_snsReturnCode(t *testing.T) {
+	type args struct {
+		err error
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{"No error", args{}, "2xx"},
+		{"Non-AWS error", args{err: errors.New("Test error")}, "5xx"},
+		{"Invalid Parameter", args{err: awserr.New(sns.ErrCodeInvalidParameterException, "", nil)}, "4xx"},
+		{"Internal Error", args{err: awserr.New(sns.ErrCodeInternalErrorException, "", nil)}, "5xx"},
+		{"Endpoint Disabled", args{err: awserr.New(sns.ErrCodeEndpointDisabledException, "", nil)}, "4xx"},
+		{"Authorization Error", args{err: awserr.New(sns.ErrCodeAuthorizationErrorException, "", nil)}, "4xx"},
+		{"KMS Disabled", args{err: awserr.New(sns.ErrCodeKMSDisabledException, "", nil)}, "4xx"},
+		{"KMS Invalid State", args{err: awserr.New(sns.ErrCodeKMSInvalidStateException, "", nil)}, "4xx"},
+		{"KMS Not Found", args{err: awserr.New(sns.ErrCodeKMSNotFoundException, "", nil)}, "4xx"},
+		{"KMS Opt-in Reqd", args{err: awserr.New(sns.ErrCodeKMSOptInRequired, "", nil)}, "4xx"},
+		{"KMS Throttle", args{err: awserr.New(sns.ErrCodeKMSThrottlingException, "", nil)}, "5xx"},
+		{"KMS Access Denied", args{err: awserr.New(sns.ErrCodeKMSAccessDeniedException, "", nil)}, "4xx"},
+		{"Invalid Security", args{err: awserr.New(sns.ErrCodeInvalidSecurityException, "", nil)}, "4xx"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			got := snsReturnCode(tt.args.err)
+			var httpReturnCodeClass string
+
+			switch {
+			case got >= 500:
+				httpReturnCodeClass = "5xx"
+			case got >= 400:
+				httpReturnCodeClass = "4xx"
+			case got == 200:
+				httpReturnCodeClass = "2xx"
+			}
+
+			if tt.want != httpReturnCodeClass {
+				t.Errorf("snsReturnCode() = %v, want %v (%s)", got, tt.want, httpReturnCodeClass)
+			}
+		})
+	}
 }
