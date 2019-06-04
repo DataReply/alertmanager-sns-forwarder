@@ -15,6 +15,7 @@ import (
 	"github.com/DataReply/alertmanager-sns-forwarder/arnutil"
 	"github.com/DataReply/alertmanager-sns-forwarder/template_util"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/linki/instrumented_http"
 	"github.com/prometheus/client_golang/prometheus"
@@ -273,11 +274,51 @@ func alertPOSTHandler(c *gin.Context) {
 	if err != nil {
 		snsRequestsUnsuccessful.WithLabelValues(topic).Inc()
 		log.Warn(err.Error())
-		c.Writer.WriteHeader(http.StatusServiceUnavailable)
+		c.Writer.WriteHeader(snsReturnCode(err))
 		return
 	}
 
 	snsRequestsSuccessful.WithLabelValues(topic).Inc()
 	log.Info(resp)
 	c.Writer.WriteHeader(http.StatusOK)
+}
+
+// snsReturnCode will return an int HTTP Status code
+// based on the type of error observed
+func snsReturnCode(err error) int {
+	if err == nil {
+		return http.StatusOK
+	}
+
+	if aerr, ok := err.(awserr.Error); ok {
+		switch aerr.Code() {
+		case sns.ErrCodeInvalidParameterException:
+			return http.StatusBadRequest
+		case sns.ErrCodeInvalidParameterValueException:
+			return http.StatusBadRequest
+		case sns.ErrCodeInternalErrorException:
+			return http.StatusServiceUnavailable
+		case sns.ErrCodeEndpointDisabledException:
+			return http.StatusBadRequest
+		case sns.ErrCodeAuthorizationErrorException:
+			return http.StatusForbidden
+		case sns.ErrCodeKMSDisabledException:
+			return http.StatusBadRequest
+		case sns.ErrCodeKMSInvalidStateException:
+			return http.StatusBadRequest
+		case sns.ErrCodeKMSNotFoundException:
+			return http.StatusBadRequest
+		case sns.ErrCodeKMSOptInRequired:
+			return http.StatusBadRequest
+		case sns.ErrCodeKMSThrottlingException:
+			return http.StatusGatewayTimeout
+		case sns.ErrCodeKMSAccessDeniedException:
+			return http.StatusForbidden
+		case sns.ErrCodeInvalidSecurityException:
+			return http.StatusForbidden
+		}
+	}
+
+	// Sane default/backwards compatible behavior
+	return http.StatusServiceUnavailable
 }
