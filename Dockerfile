@@ -11,7 +11,7 @@ RUN make all
 
 # final image
 FROM scratch
-MAINTAINER o.grodzki@reply.de
+LABEL maintainer="o.grodzki@reply.de"
 
 # Add sh and other tools for debugging the container
 #COPY --from=builder /lib/ld-musl-x86_64.so.1 /lib/ld-musl-x86_64.so.1
