@@ -2,10 +2,8 @@
 FROM golang:alpine as builder
 
 RUN set -ex && apk --update --no-cache add \
-    bash \
-    make \
     git \
-    cmake 
+    make
 
 WORKDIR /go/src/github.com/DataReply/alertmanager-sns-forwarder
 COPY . .
