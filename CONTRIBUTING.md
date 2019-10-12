@@ -1,6 +1,6 @@
 # How to contribute
 
-Thank you for your contribution to grpc-gateway.
+Thank you for your contribution to alertmanager-sns-forwarder.
 Here's the recommended process of contribution.
 
 1. `go get github.com/DataReply/alertmanager-sns-forwarder`
