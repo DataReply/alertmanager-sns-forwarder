@@ -13,7 +13,7 @@ import (
 	"html/template"
 
 	"github.com/DataReply/alertmanager-sns-forwarder/arnutil"
-	"github.com/DataReply/alertmanager-sns-forwarder/template_util"
+	"github.com/DataReply/alertmanager-sns-forwarder/templateutil"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -27,6 +27,7 @@ import (
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
+// Alerts is a structure for grouping Prometheus Alerts
 type Alerts struct {
 	Alerts            []Alert                `json:"alerts"`
 	CommonAnnotations map[string]interface{} `json:"commonAnnotations"`
@@ -39,6 +40,7 @@ type Alerts struct {
 	Version           int                    `json:"version"`
 }
 
+// Alert is a structure for a single Prometheus Alert
 type Alert struct {
 	Annotations  map[string]interface{} `json:"annotations"`
 	EndsAt       string                 `json:"endsAt"`
@@ -50,7 +52,7 @@ type Alert struct {
 var (
 	log = logrus.New()
 
-	listenAddr           = kingpin.Flag("addr", "Address on which to listen").Default(":9087").Envar("SNS_FORWARDER_ADDRESS").String()
+	listenAddr            = kingpin.Flag("addr", "Address on which to listen").Default(":9087").Envar("SNS_FORWARDER_ADDRESS").String()
 	debug                 = kingpin.Flag("debug", "Debug mode").Default("false").Envar("SNS_FORWARDER_DEBUG").Bool()
 	arnPrefix             = kingpin.Flag("arn-prefix", "Prefix to use for ARNs").Envar("SNS_FORWARDER_ARN_PREFIX").String()
 	snsSubject            = kingpin.Flag("sns-subject", "SNS subject").Envar("SNS_SUBJECT").String()
@@ -87,14 +89,14 @@ var (
 
 	// Template addictional functions map
 	funcMap = template.FuncMap{
-		"str_FormatDate":         template_util.Str_FormatDate,
+		"str_FormatDate":         templateutil.StrFormatDate,
 		"str_UpperCase":          strings.ToUpper,
 		"str_LowerCase":          strings.ToLower,
 		"str_Title":              strings.Title,
-		"str_FormatFloat":        template_util.Str_FormatFloat,
-		"str_Format_Byte":        template_util.Str_Format_Byte,
-		"str_Format_MeasureUnit": template_util.Str_Format_MeasureUnit,
-		"HasKey":                 template_util.HasKey,
+		"str_FormatFloat":        templateutil.StrFormatFloat,
+		"str_Format_Byte":        templateutil.StrFormatByte,
+		"str_Format_MeasureUnit": templateutil.StrFormatMeasureUnit,
+		"HasKey":                 templateutil.HasKey,
 	}
 )
 
@@ -208,6 +210,7 @@ func loadTemplate(tmplPath *string) *template.Template {
 	return tmpH
 }
 
+// AlertFormatTemplate applies the template to the Alerts
 func AlertFormatTemplate(alerts Alerts) string {
 	var bytesBuff bytes.Buffer
 	var err error

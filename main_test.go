@@ -117,8 +117,8 @@ func TestSNSAlertEndpoint(t *testing.T) {
 	req, _ = http.NewRequest("POST", "/alert/test-topic", strings.NewReader("test-payload"))
 	testHTTPResponse(t, r, req, http.StatusOK)
 
-	templatePath_ := "testdata/default.tmpl"
-	templatePath = &templatePath_
+	templatePathStr := "testdata/default.tmpl"
+	templatePath = &templatePathStr
 	tmpH = loadTemplate(templatePath)
 	svc = sns.New(mockJsonDataSession)
 	req, _ = http.NewRequest("POST", "/alert/test-topic", bytes.NewReader(data))
