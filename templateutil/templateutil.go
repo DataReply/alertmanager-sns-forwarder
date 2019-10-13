@@ -1,5 +1,5 @@
-// Package template_util contains template functions from prometheus_bot
-package template_util
+// Package templateutil contains template functions from prometheus_bot
+package templateutil
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ const (
 	Eb
 	Zb
 	Yb
-	Information_Size_MAX
+	InformationSizeMAX
 )
 
 /**
@@ -37,10 +37,10 @@ const (
 	E
 	Z
 	Y
-	Scale_Size_MAX
+	ScaleSizeMAX
 )
 
-func RoundPrec(x float64, prec int) float64 {
+func roundPrec(x float64, prec int) float64 {
 	if math.IsNaN(x) || math.IsInf(x, 0) {
 		return x
 	}
@@ -65,12 +65,8 @@ func RoundPrec(x float64, prec int) float64 {
 	return rounder / pow * sign
 }
 
-/******************************************************************************
- *
- *          Function for formatting template
- *
- ******************************************************************************/
-func Str_Format_MeasureUnit(MeasureUnit string, value string, templateSplitToken string) string {
+// StrFormatMeasureUnit formats the template
+func StrFormatMeasureUnit(MeasureUnit string, value string, templateSplitToken string) string {
 	var RetStr string
 	MeasureUnit = strings.TrimSpace(MeasureUnit) // Remove space
 	SplittedMUnit := strings.SplitN(MeasureUnit, templateSplitToken, 3)
@@ -92,15 +88,15 @@ func Str_Format_MeasureUnit(MeasureUnit string, value string, templateSplitToken
 
 	switch SplittedMUnit[0] {
 	case "kb":
-		RetStr = Str_Format_Byte(value, Initial)
+		RetStr = StrFormatByte(value, Initial)
 	case "s":
-		RetStr = Str_Format_Scale(value, Initial)
+		RetStr = StrFormatScale(value, Initial)
 	case "f":
-		RetStr = Str_FormatFloat(value)
+		RetStr = StrFormatFloat(value)
 	case "i":
-		RetStr = Str_FormatInt(value)
+		RetStr = StrFormatInt(value)
 	default:
-		RetStr = Str_FormatInt(value)
+		RetStr = StrFormatInt(value)
 	}
 
 	if len(SplittedMUnit) > 1 {
@@ -110,9 +106,9 @@ func Str_Format_MeasureUnit(MeasureUnit string, value string, templateSplitToken
 	return RetStr
 }
 
-// Scale number for It measure unit
-func Str_Format_Byte(in string, j1 int) string {
-	var str_Size string
+// StrFormatByte scales number for It measure unit
+func StrFormatByte(in string, j1 int) string {
+	var strSize string
 
 	f, err := strconv.ParseFloat(in, 64)
 
@@ -120,10 +116,10 @@ func Str_Format_Byte(in string, j1 int) string {
 		panic(err)
 	}
 
-	for j1 = 0; j1 < (Information_Size_MAX + 1); j1++ {
+	for j1 = 0; j1 < (InformationSizeMAX + 1); j1++ {
 
-		if j1 >= Information_Size_MAX {
-			str_Size = "Yb"
+		if j1 >= InformationSizeMAX {
+			strSize = "Yb"
 			break
 		} else if f > 1024 {
 			f /= 1024.0
@@ -131,33 +127,33 @@ func Str_Format_Byte(in string, j1 int) string {
 
 			switch j1 {
 			case Kb:
-				str_Size = "Kb"
+				strSize = "Kb"
 			case Mb:
-				str_Size = "Mb"
+				strSize = "Mb"
 			case Gb:
-				str_Size = "Gb"
+				strSize = "Gb"
 			case Tb:
-				str_Size = "Tb"
+				strSize = "Tb"
 			case Pb:
-				str_Size = "Pb"
+				strSize = "Pb"
 			case Eb:
-				str_Size = "Eb"
+				strSize = "Eb"
 			case Zb:
-				str_Size = "Zb"
+				strSize = "Zb"
 			case Yb:
-				str_Size = "Yb"
+				strSize = "Yb"
 			}
 			break
 		}
 	}
 
-	str_fl := strconv.FormatFloat(f, 'f', 2, 64)
-	return fmt.Sprintf("%s %s", str_fl, str_Size)
+	strFl := strconv.FormatFloat(f, 'f', 2, 64)
+	return fmt.Sprintf("%s %s", strFl, strSize)
 }
 
-// Format number for fisics measure unit
-func Str_Format_Scale(in string, j1 int) string {
-	var str_Size string
+// StrFormatScale formats number for fisics measure unit
+func StrFormatScale(in string, j1 int) string {
+	var strSize string
 
 	f, err := strconv.ParseFloat(in, 64)
 
@@ -165,55 +161,58 @@ func Str_Format_Scale(in string, j1 int) string {
 		panic(err)
 	}
 
-	for j1 = 0; j1 < (Scale_Size_MAX + 1); j1++ {
+	for j1 = 0; j1 < (ScaleSizeMAX + 1); j1++ {
 
-		if j1 >= Scale_Size_MAX {
-			str_Size = "Y"
+		if j1 >= ScaleSizeMAX {
+			strSize = "Y"
 			break
 		} else if f > 1000 {
 			f /= 1000.0
 		} else {
 			switch j1 {
 			case K:
-				str_Size = "K"
+				strSize = "K"
 			case M:
-				str_Size = "M"
+				strSize = "M"
 			case G:
-				str_Size = "G"
+				strSize = "G"
 			case T:
-				str_Size = "T"
+				strSize = "T"
 			case P:
-				str_Size = "P"
+				strSize = "P"
 			case E:
-				str_Size = "E"
+				strSize = "E"
 			case Z:
-				str_Size = "Z"
+				strSize = "Z"
 			case Y:
-				str_Size = "Y"
+				strSize = "Y"
 			default:
-				str_Size = "Y"
+				strSize = "Y"
 			}
 			break
 		}
 	}
 
-	str_fl := strconv.FormatFloat(f, 'f', 2, 64)
-	return fmt.Sprintf("%s %s", str_fl, str_Size)
+	strFl := strconv.FormatFloat(f, 'f', 2, 64)
+	return fmt.Sprintf("%s %s", strFl, strSize)
 }
 
-func Str_FormatInt(i string) string {
+// StrFormatInt formats as integer
+func StrFormatInt(i string) string {
 	v, _ := strconv.ParseInt(i, 10, 64)
 	val := strconv.FormatInt(v, 10)
 	return val
 }
 
-func Str_FormatFloat(f string) string {
+// StrFormatFloat formats as float
+func StrFormatFloat(f string) string {
 	v, _ := strconv.ParseFloat(f, 64)
-	v = RoundPrec(v, 2)
+	v = roundPrec(v, 2)
 	return strconv.FormatFloat(v, 'f', -1, 64)
 }
 
-func Str_FormatDate(toformat string, templateTimeZone string, templateTimeOutFormat string) string {
+// StrFormatDate formats as date
+func StrFormatDate(toformat string, templateTimeZone string, templateTimeOutFormat string) string {
 
 	// Error handling
 	if templateTimeZone == "" {
@@ -237,8 +236,9 @@ func Str_FormatDate(toformat string, templateTimeZone string, templateTimeOutFor
 	return t.In(loc).Format(templateTimeOutFormat)
 }
 
-func HasKey(dict map[string]interface{}, key_search string) bool {
-	if _, ok := dict[key_search]; ok {
+// HasKey checks if the map contains the key
+func HasKey(dict map[string]interface{}, keySearch string) bool {
+	if _, ok := dict[keySearch]; ok {
 		return true
 	}
 	return false
