@@ -18,7 +18,7 @@ var (
 	log = logrus.New()
 )
 
-// Helper function to validate ARNs
+// ValidateARN is a helper function to validate ARNs
 func ValidateARN(arnString string) bool {
 	_, err := arn.Parse(arnString)
 	if err != nil {
@@ -28,7 +28,7 @@ func ValidateARN(arnString string) bool {
 	return true
 }
 
-// Helper function to get region from ARNs
+// GetRegionFromARN is a helper function to get region from ARNs
 func GetRegionFromARN(arnString string) string {
 	arn, err := arn.Parse(arnString)
 	if err != nil {
@@ -54,7 +54,7 @@ func InstanceProfileArn(svc *ec2metadata.EC2Metadata) (arn.ARN, error) {
 	return arn.Parse(info.InstanceProfileArn)
 }
 
-// BaseArn calculates the base SNS arn given an instance's arn
+// BaseSNSArn calculates the base SNS arn given an instance's arn
 func BaseSNSArn(instanceProfileArn arn.ARN, region string) (string, error) {
 	// instance profile arn will be of the form:
 	// arn:aws:iam::account-id:instance-profile/role-name
@@ -81,7 +81,7 @@ func DetectARNPrefix(sess *session.Session) (string, error) {
 		return "", err
 	}
 
-	region, err := svc.Region()
+	region, _ := svc.Region()
 	if region == "" || !ValidateRegionString(region) {
 		// Could not get region, will try to get it from env
 		if os.Getenv("AWS_REGION") != "" && ValidateRegionString(os.Getenv("AWS_REGION")) {
@@ -89,14 +89,14 @@ func DetectARNPrefix(sess *session.Session) (string, error) {
 		} else if os.Getenv("AWS_DEFAULT_REGION") != "" && ValidateRegionString(os.Getenv("AWS_DEFAULT_REGION")) {
 			region = os.Getenv("AWS_DEFAULT_REGION")
 		} else {
-			return "", errors.New("The ARN prefix was not supplied and could not be detected.")
+			return "", errors.New("The ARN prefix was not supplied and could not be detected")
 		}
 	}
 
 	return BaseSNSArn(instanceArn, region)
 }
 
-// Helper function to validate the region string
+// ValidateRegionString is a helper function to validate the region string
 func ValidateRegionString(region string) bool {
 	_, exists := endpoints.PartitionForRegion(endpoints.DefaultPartitions(), region)
 	return exists
