@@ -23,7 +23,7 @@ spec:
       restartPolicy: Always
       containers:
       - name: alertmanager-sns-forwarder
-        image: alertmanager-sns-forwarder:0.1
+        image: alertmanager-sns-forwarder:latest
         imagePullPolicy: Always
         # You can also specify arguments
         # args: ["--addr=:9087", "--debug", "--arn-prefix=<some_prefix>"]
