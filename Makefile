@@ -16,8 +16,7 @@ test:
 	CGO_ENABLED=0 go test github.com/DataReply/${PROJECT_NAME}/...
 
 dep:
-	go get -u github.com/golang/dep/cmd/dep
-	dep ensure -vendor-only
+	go mod tidy
 
 clean:
 	rm -rf bin
