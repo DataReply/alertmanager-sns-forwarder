@@ -29,6 +29,7 @@
     "aws/credentials",
     "aws/credentials/ec2rolecreds",
     "aws/credentials/endpointcreds",
+    "aws/credentials/processcreds",
     "aws/credentials/stscreds",
     "aws/csm",
     "aws/defaults",
@@ -39,19 +40,22 @@
     "aws/signer/v4",
     "internal/ini",
     "internal/sdkio",
+    "internal/sdkmath",
     "internal/sdkrand",
     "internal/sdkuri",
     "internal/shareddefaults",
     "private/protocol",
+    "private/protocol/json/jsonutil",
     "private/protocol/query",
     "private/protocol/query/queryutil",
     "private/protocol/rest",
     "private/protocol/xml/xmlutil",
     "service/sns",
-    "service/sts"
+    "service/sts",
+    "service/sts/stsiface"
   ]
-  revision = "ddc06f9fad886ea5daa5f828f3ca094084f8c2a7"
-  version = "v1.15.90"
+  revision = "31767fe4cf2e7e969e2245ab694e21f85015e24b"
+  version = "v1.25.41"
 
 [[projects]]
   branch = "master"
@@ -83,15 +87,9 @@
   version = "v1.2.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/inCaller/prometheus_bot"
-  packages = ["."]
-  revision = "37679806b449b3012f2a17ed1462ccca542a40aa"
-
-[[projects]]
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
-  revision = "0b12d6b5"
+  revision = "c2b33e84"
 
 [[projects]]
   name = "github.com/json-iterator/go"
@@ -179,12 +177,6 @@
   version = "v1.2.0"
 
 [[projects]]
-  name = "github.com/technoweenie/multipartstreamer"
-  packages = ["."]
-  revision = "a90a01d73ae432e2611d178c18367fbaa13e0154"
-  version = "v1.0.1"
-
-[[projects]]
   name = "github.com/ugorji/go"
   packages = ["codec"]
   revision = "b4c50a2b199d93b13dc15e78929cfb23bfdf21ab"
@@ -218,12 +210,6 @@
   version = "v8.18.2"
 
 [[projects]]
-  name = "gopkg.in/telegram-bot-api.v4"
-  packages = ["."]
-  revision = "9860bdfd3a171ceafb6e1eafa163482a6ef92643"
-  version = "v4.6.4"
-
-[[projects]]
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
@@ -232,6 +218,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5c3aa783277b6ab71e444b02e389666d3372f401190525b914db95ed34c423ba"
+  inputs-digest = "402c375a3fa2269eb7ca4465b2fa588af8aac7d1f8370847fa621f9d007ad05f"
   solver-name = "gps-cdcl"
   solver-version = 1
