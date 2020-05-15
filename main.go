@@ -4,13 +4,12 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"html/template"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"path"
 	"strings"
-
-	"html/template"
 
 	"github.com/DataReply/alertmanager-sns-forwarder/arnutil"
 	"github.com/DataReply/alertmanager-sns-forwarder/templateutil"
