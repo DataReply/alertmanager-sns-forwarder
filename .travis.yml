@@ -26,7 +26,7 @@ before_deploy:
 deploy:
   provider: releases
   api_key:
-    secure: gagL1oQM//dRiyO9J/N4cv4xKhmuUi/zsHAYRgefaGnzl6sWoqbEtirr6RoCmZldg2rBCEIuVMiY0YV9UiPUyWhcF+TjFgGJR6If+bSmQsjI3X74QQYklGmGDRsMk6VY7x05GJ/x+iPtUmi2bPsYNFSBG/xMqs7kHcXytZro6eOH+1/9GHUveYF0oZYN8dWESVRz2LluNmgv7ZPkdfGuYd3cMC+8FZOgQQW/xQ7idhHpkUHUfRtISmSal1v4D9INd9ll2CezW12qYpSUcqnbLFXl1maLfXyCnYq1nEVaFiVQYEcSlTseIOAUGSS0/5RjPBXzF+k8ocQ//GRoe23GSBJYBQjaC2t+kTf3syRKIckH2A7qYhjLfJzCAAGsZQGbZqT7p6WzkKyebKF80vWFeyw6BfXMkpkiDozvXBHu2HJEc/OAlypG6xlmRJ75TtgIHhNXUNgrIhbUtteWuLmTLkxbM4QGFHb7vZxvgudqyk9CIX7KTVpsNG4tl77xdVOCO6vuLQ+Wc9ezCjy5wqnPQtvzPDaeF5NhyGWJbNNO85Z9xuZ5nX2brv8KtUICvZiDDHvgcBPZ97w6IKmFT5SBD5AqWAmIH2BKRK2F/l7qmFaG0FPvh1JRHVEDVgOySaTDXy4QLKkG/G2SoP4RE/mHKs1ikyGS2RHGA13aVOWyUyc=
+    secure: nlzFy12uilNNc+Hvzu7nQzraoyi5FtjYAn9u7OYFpzR/Ek6WkdS011dooPXLFAjQacZSlRvwt7aogB7ox9a5K0uIfLe/ZKQ2EOZyPZNZPylixI8deMFT+O8s2G8mPjNAZakQCLo5bibcSXbNw1e44at8VltB3dshWQLB1mLATLraUfKx85NtiQmSHTR7d0DDzxI0YXTHY3qgJulYm+gF6k7OqAd9+V5JfsVgfa+6v0kuXhjvR6QSYb5NvP9W0mWmd6gHOKCUugTFpk5kDB9W+id2CNilphPWL5FvF38zRaVPjzy8iTEvslEvi9X32QeQcuDYc3gEBvj1LZLdBow0x+AgXECLm0guv/wlrUFlPjh1IqPA4npPsDYM6Fi9/z/HjwGW4FU6zQjTo3C1e5cO9V1G03m7LUwkh1ZmU8demp3VAbKEpVasSMmxZoWt2K5e9bsZAB/Va9jzoANKejWBGxtkVBFmTEgTSGAOcCk4Y2XTU8rFD3MZLk7uMT4MPg1Y9zlT1cII1OSVSxkzS/cWDy7mrUfZTzrzk3ZIKCd04tw7ocU2ZPGAXCvKnFimoBg79EyME3zUX8CzRW7sehZxLSYE4+UHeSGLsaWxhIjoEPH26tBz8yzp+2wLCaYsCRUF7Et0ehWvlFGXkTaUz7YOnWtscbaeJf5ZgGGlc6XbIjw=
   file:
     - "releases/alertmanager-sns-forwarder-darwin_amd64.tar.gz"
     - "releases/alertmanager-sns-forwarder-linux_amd64.tar.gz"
@@ -39,7 +39,9 @@ deploy:
 
 after_success:
   - test $TRAVIS_TAG && 
-    docker tag datareply/alertmanager-sns-forwarder:latest datareply/alertmanager-sns-forwarder:$TRAVIS_TAG
+    docker tag datareply/alertmanager-sns-forwarder:latest datareply/alertmanager-sns-forwarder:$TRAVIS_TAG &&
+    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && 
+    docker push datareply/alertmanager-sns-forwarder:$TRAVIS_TAG
   - test $TRAVIS_BRANCH = "master" && 
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && 
     docker push datareply/alertmanager-sns-forwarder
