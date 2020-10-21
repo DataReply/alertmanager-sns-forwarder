@@ -3,6 +3,7 @@ package main
 
 import (
 	"bytes"
+    "fmt"
 	"encoding/json"
 	"html/template"
 	"io"
@@ -51,7 +52,7 @@ type Alert struct {
 var (
 	log = logrus.New()
 
-	listenAddr            = kingpin.Flag("addr", "Address on which to listen").Default(":9087").Envar("SNS_FORWARDER_ADDRESS").String()
+	listenAddr            = kingpin.Flag("addr", "Address on which to listen").Default("9087").Envar("SNS_FORWARDER_ADDRESS").String()
 	debug                 = kingpin.Flag("debug", "Debug mode").Default("false").Envar("SNS_FORWARDER_DEBUG").Bool()
 	arnPrefix             = kingpin.Flag("arn-prefix", "Prefix to use for ARNs").Envar("SNS_FORWARDER_ARN_PREFIX").String()
 	snsSubject            = kingpin.Flag("sns-subject", "SNS subject").Envar("SNS_SUBJECT").String()
@@ -165,9 +166,9 @@ func main() {
 
 	setupRouter(router)
 
-	log.Info("listening on", *listenAddr)
+    router.Run(fmt.Sprintf(":%s", *listenAddr))
 
-	router.Run(*listenAddr)
+	log.Info("listening on", *listenAddr)
 }
 
 func registerCustomPrometheusMetrics() {
