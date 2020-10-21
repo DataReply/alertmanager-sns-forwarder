@@ -168,7 +168,7 @@ func main() {
 
     router.Run(fmt.Sprintf(":%s", *listenAddr))
 
-	log.Info("listening on", *listenAddr)
+	log.Info("listening on ", *listenAddr)
 }
 
 func registerCustomPrometheusMetrics() {
